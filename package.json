@@ -1,0 +1,28 @@
+{
+  "name": "moodle-trace-analytics",
+  "version": "1.0.0",
+  "description": "moodle-trace-analytics ======================",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fcassin/moodle-trace-analytics.git"
+  },
+  "keywords": [
+    "moodle",
+    "analytics",
+    "api"
+  ],
+  "author": "François Cassin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fcassin/moodle-trace-analytics/issues"
+  },
+  "homepage": "https://github.com/fcassin/moodle-trace-analytics",
+  "dependencies": {
+    "express": "^4.10.1",
+    "pg": "^3.6.2"
+  }
+}

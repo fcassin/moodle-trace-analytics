@@ -1,0 +1,88 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'node-postgres',
+1 verbose cli   '--save' ]
+2 info using npm@1.4.28
+3 info using node@v0.10.32
+4 verbose readDependencies using package.json deps
+5 verbose cache add [ 'node-postgres', null ]
+6 verbose cache add name=undefined spec="node-postgres" args=["node-postgres",null]
+7 verbose parsed url { protocol: null,
+7 verbose parsed url   slashes: null,
+7 verbose parsed url   auth: null,
+7 verbose parsed url   host: null,
+7 verbose parsed url   port: null,
+7 verbose parsed url   hostname: null,
+7 verbose parsed url   hash: null,
+7 verbose parsed url   search: null,
+7 verbose parsed url   query: null,
+7 verbose parsed url   pathname: 'node-postgres',
+7 verbose parsed url   path: 'node-postgres',
+7 verbose parsed url   href: 'node-postgres' }
+8 silly lockFile e99017fd-node-postgres node-postgres
+9 verbose lock node-postgres /home/francois/.npm/e99017fd-node-postgres.lock
+10 silly lockFile e99017fd-node-postgres node-postgres
+11 silly lockFile e99017fd-node-postgres node-postgres
+12 verbose addNamed [ 'node-postgres', '' ]
+13 verbose addNamed [ null, '*' ]
+14 silly lockFile e09a6723-node-postgres node-postgres@
+15 verbose lock node-postgres@ /home/francois/.npm/e09a6723-node-postgres.lock
+16 silly addNameRange { name: 'node-postgres', range: '*', hasData: false }
+17 verbose request where is /node-postgres
+18 verbose request registry http://registry.npmjs.org/
+19 verbose request id 7b8e449e1d7331a9
+20 verbose url raw /node-postgres
+21 verbose url resolving [ 'http://registry.npmjs.org/', './node-postgres' ]
+22 verbose url resolved http://registry.npmjs.org/node-postgres
+23 verbose request where is http://registry.npmjs.org/node-postgres
+24 info trying registry request attempt 1 at 11:45:31
+25 http GET http://registry.npmjs.org/node-postgres
+26 http 404 http://registry.npmjs.org/node-postgres
+27 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+27 verbose headers   'content-type': 'application/json',
+27 verbose headers   'cache-control': 'max-age=0',
+27 verbose headers   'content-length': '52',
+27 verbose headers   'accept-ranges': 'bytes',
+27 verbose headers   date: 'Fri, 31 Oct 2014 10:45:17 GMT',
+27 verbose headers   age: '0',
+27 verbose headers   'x-served-by': 'cache-lcy1128-LCY',
+27 verbose headers   'x-cache': 'MISS, MISS from cache2.wifi.univ-nantes.fr',
+27 verbose headers   'x-cache-hits': '0',
+27 verbose headers   'x-timer': 'S1414752316.968703,VS0,VE153',
+27 verbose headers   via: '1.1 varnish, 1.1 cache2.wifi.univ-nantes.fr (squid/3.HEAD-20120307-r12077)',
+27 verbose headers   connection: 'keep-alive' }
+28 silly registry.get cb [ 404,
+28 silly registry.get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+28 silly registry.get     'content-type': 'application/json',
+28 silly registry.get     'cache-control': 'max-age=0',
+28 silly registry.get     'content-length': '52',
+28 silly registry.get     'accept-ranges': 'bytes',
+28 silly registry.get     date: 'Fri, 31 Oct 2014 10:45:17 GMT',
+28 silly registry.get     age: '0',
+28 silly registry.get     'x-served-by': 'cache-lcy1128-LCY',
+28 silly registry.get     'x-cache': 'MISS, MISS from cache2.wifi.univ-nantes.fr',
+28 silly registry.get     'x-cache-hits': '0',
+28 silly registry.get     'x-timer': 'S1414752316.968703,VS0,VE153',
+28 silly registry.get     via: '1.1 varnish, 1.1 cache2.wifi.univ-nantes.fr (squid/3.HEAD-20120307-r12077)',
+28 silly registry.get     connection: 'keep-alive' } ]
+29 silly lockFile e09a6723-node-postgres node-postgres@
+30 silly lockFile e09a6723-node-postgres node-postgres@
+31 error 404 404 Not Found: node-postgres
+31 error 404
+31 error 404 'node-postgres' is not in the npm registry.
+31 error 404 You should bug the author to publish it
+31 error 404 It was specified as a dependency of 'moodle-trace-analytics'
+31 error 404
+31 error 404 Maybe try 'npm search postgres'
+31 error 404
+31 error 404 Note that you can also install from a
+31 error 404 tarball, folder, or http url, or git url.
+32 error System Linux 3.13.0-39-generic
+33 error command "/usr/local/bin/node" "/usr/local/bin/npm" "install" "node-postgres" "--save"
+34 error cwd /home/francois/Documents/tte/moodle-trace-analytics
+35 error node -v v0.10.32
+36 error npm -v 1.4.28
+37 error code E404
+38 verbose exit [ 1, true ]
