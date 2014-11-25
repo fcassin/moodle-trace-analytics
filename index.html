@@ -1,0 +1,79 @@
+<html>
+<head>
+  <title>Portail WiFI de l'universit&eacute; de Nantes</title>
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <link rel="shortcut icon" href="https://webmail.univ-nantes.fr/favicon.ico">
+
+  <link rel="stylesheet" href="https://cdn.univ-nantes.fr/scripts/jquery-supersized-3.1.3/slideshow/css/supersized.css" type="text/css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+  <script stype="text/javascript" src="https://cdn.univ-nantes.fr/scripts/jquery.tools-1.2.6.min.js"></script>
+
+  <script type="text/javascript" src="https://cdn.univ-nantes.fr/scripts/jquery-supersized-3.1.3/slideshow/js/supersized.3.1.3.min.js"></script>
+  <script type="text/javascript" src="https://cdn.univ-nantes.fr/scripts/background.js"></script>
+</head>
+<body>
+
+<div id="container">
+        <div id="proxybox">
+                <h2 style="text-align:center">Oops! Votre navigateur est mal configur&eacute;!</h2><br>
+                <div>
+                        Pour naviguer sur l'intranet et l'internet, vous devez configurer votre navigateur avec la <b>d&eacute;tection automatique du proxy</b> ou bien avec le script de configuration PAC: <b>http://www.dsi.univ-nantes.fr/cache.pac</b>
+                </div>
+                <br />
+                <div>
+      		        <b>Instructions</b> de param&eacute;trage pour les principaux navigateurs:
+              	</div> 
+              	<div id="firefox" class="proxyConfig">
+              		<div class="proxyContent">Cochez la case "D&eacute;tection automatique des param&egrave;tres de proxy pour ce r&eacute;seau" dans le menu Outils &rarr; Options &rarr; Avanc&eacute; &rarr; R&eacute;seau &rarr; Param&egrave;tres</div>
+              	</div>      	
+              	<br />
+              	<div id="ie" class="proxyConfig">
+              		<div class="proxyContent">Cochez la case "D&eacute;tecter automatiquement les param&egrave;tres de connexion" dans le menu Outils &rarr; Options Internet &rarr; Connexions &rarr; Param&egrave;tres r&eacute;seau &rarr; D&eacute;tecter automatiquement les param&egrave;tres de connexion</div>
+              	</div>
+              	<br />
+              	<div id="safari" class="proxyConfig">
+              		<div class="proxyContent">Saisir http://www.dsi.univ-nantes.fr/cache.pac comme URL de fichier PAC dans le menu Safari &rarr; Pr&eacute;f&eacute;rences &rarr; Avanc&eacute;es &rarr; Proxies: Modifier les r&eacute;glages &rarr; Utiliser un fichier PAC</div>
+              	</div>
+              	<br />
+              	<div>
+      		        Pour configurer manuellement une application ne supportant pas la d&eacute;tection automatique, veuillez utiliser les param&egrave;tres suivants:<BR /><br />
+      		        <div class="code"><b>Serveur:</b> cache.wifi.univ-nantes.fr &nbsp; <b>Port:</b> 3128</div>
+              	</div>
+              	<br>
+      </div> <!-- proxybox -->
+      <br clear=all />        
+</div>
+        
+</div>
+<div id="logo">
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	//-------------------------------------------------------------------
+	// centrage de la fenetre de login
+	//-------------------------------------------------------------------
+	$(window).resize(function(){
+		$('#container').css({
+			position:'absolute',
+			left: ($(window).width() - $('#container').outerWidth())/2,
+			top: ($(window).height() - $('#container').outerHeight())/2
+		});
+		$('#proxybox').css({
+			position:'absolute',
+			left: ($('#container').width() - $('#proxybox').outerWidth())/2,
+			top: ($('#container').height() - $('#proxybox').outerHeight())/2
+		});
+	});
+	$(window).resize();
+
+});
+
+
+
+</script>
+</body>
+</html>
+

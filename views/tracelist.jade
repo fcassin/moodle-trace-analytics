@@ -1,0 +1,9 @@
+extends layout
+
+block content
+	h1.
+		Trace list
+	ul
+		each trace, i in tracelist
+			li
+				= trace.attr.moodleId

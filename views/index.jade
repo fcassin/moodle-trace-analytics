@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1= title
+  h2 Connexions totales
+  ul
+    li 
+      a(href='/login/daily') par jour
+    li 
+      a(href='/login/weekly') par semaine
+
+  h2 Visiteurs uniques
+  ul
+    li
+      a(href='/users/daily') par jour
+    li
+      a(href='/users/weekly') par semaine
