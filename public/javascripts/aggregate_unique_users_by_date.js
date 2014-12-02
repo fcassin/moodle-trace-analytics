@@ -4,113 +4,100 @@ var async = require('async');
 var mongo = require('./ktbs_mongo.js');
 
 var aggregationType = 'countByUniqueUserAndDate';
-var intermediaryAggregationType = 'groupLoginsByDateAndUser';
 
 var dailyFrequency = { frequency : 'daily' };
 var weeklyFrequency = { frequency : 'weekly' };
 
-aggregate.groupLoginsByDateAndUser = function(frequency, callback) {
-	var connection = mongo.createMongoConnection();
+aggregate.countByUniqueUserAndDate = function(frequency, callback) {
+	console.log(aggregationType + ', frequency : ' + frequency.frequency);
 
-	var mapReducer = {};
+	var timeCalculation, connection, obselModel;
 
-	mapReducer.scope = {
-		frequency : frequency
-	};
+	connection = mongo.createMongoConnection();
+	obselModel = mongo.getObselModel(connection);
 
-	mapReducer.map = function map() {
-		var date = new Date(this.begin);
-
-		var day;
-		if (frequency.frequency === 'daily') {
-			day = date.getDate();
-		} else if (frequency.frequency === 'weekly') {
-			day = date.getDate() - date.getDay() + 1;
-		} else {
-			// Defaults to daily
-			day = date.getDate() - date.getDay() + 1;
-		}
-
-		var keyDate = new Date(date.getFullYear(),
-																 date.getMonth(),
-																 day,
-																 0, 0, 0, 0);
-
-		emit({date: keyDate, user_id: this.subject}, 1);
+	if (frequency.frequency === 'weekly') {
+		// Epoch time was a thursday, we need to roll back to monday
+		timeCalculation = { 
+			$add : [
+				{
+					$subtract : [
+						"$begin",
+						{ $mod : [
+							{ $add : [
+								  "$begin",
+									345600000		  
+								]
+							}, 
+							604800000 
+						]} 
+					]
+				},
+				86400000
+			]	
+    };
+	} else {
+		// Defaults to daily
+		timeCalculation = {
+			$subtract : [
+				"$begin", 
+				{ $mod : ["$begin", 86400000 ] } 
+			]
+    };
 	}
 
-	mapReducer.reduce = function(key, values) {
-		return Array.sum(values);
-	}
+	obselModel.aggregate(
+	  [
+	    {
+	      $match : {
+	        "@type" : "user_login"
+	      }
+	    }, { 
+	      $project :
+	      {
+	        day : timeCalculation,
+	        user : "$subject"  
+	      }
+	    }, {
+	      $group : 
+	        {
+	          _id : {
+			  						day : "$day",
+	                  user : "$user"
+									},
+	          number : { $sum : 1 }
+	        }
+	    }, {
+		$group :
+		  {
+		    _id : {
+					day : "$_id.day"
+		    },
+		    number : { $sum : 1 }	
+		  }
+	    }, {
+	      $sort : {
+	        "_id.day" : 1
+	      }
+	    }, {
+	      $project : {
+					_id : "$_id.day",
+					value : "$number"
+	      }	
+	    }    
+	  ]
+	).exec(function(err, results) {
+		if (err) return callback(err);
 
-	mapReducer.query = { "@type" : "user_login" };
-	mapReducer.verbose = true;
-
-	var obselModel = mongo.getObselModel(connection);
-
-	obselModel.mapReduce(mapReducer, function(err, results, stats) {
-		if (err) {
-			console.log(err);
-			throw err;
-		}
-
-		console.log('First Map/Reduce took %d ms', stats.processtime);
 		mongo.disconnectMongo(connection);
-		callback(err, results);
-	});
-}
-
-aggregate.countByUniqueUserAndDate = function(frequency, aggregationType, callback) {
-	console.log('Frequency : ' + frequency.frequency);
-	console.log('Aggregation type : ' + aggregationType);
-
-	var connection = mongo.createMongoConnection();
-
-	var mapReducer = {};
-
-	mapReducer.map = function map() {
-		var previousResults = this.results;
-		previousResults.forEach(function(previousResult) {
-			emit(previousResult._id.date, 1);
-		});
-	}
-
-	mapReducer.reduce = function(key, values) {
-		return Array.sum(values);
-	}
-
-	mapReducer.query = { 
-		"@type" : 'aggregate',
-		"subject" : aggregationType,
-		"args.frequency" : frequency.frequency
-	};
-	mapReducer.verbose = true;
-
-	var obselModel = mongo.getObselModel(connection);
-
-	obselModel.mapReduce(mapReducer, function(err, results, stats) {
-		if (err) {
-			console.log(err);
-			throw err;
-		}
-
-		console.log('Second Map/Reduce took %d ms', stats.processtime);
-		console.log(results);
-		mongo.disconnectMongo(connection);
-		callback(err, results);
+		callback(null, results);
 	});
 }
 
 aggregate.clearPreviousResults = function(callback) {
 	async.series([
-			function clearDailyResults(callback) {
-				mongo.removeResults(intermediaryAggregationType, dailyFrequency, callback);
-			},
 			function clearDailyUniqueUsersResults(callback) {
 				mongo.removeResults(aggregationType, dailyFrequency, callback);
-			},
-			function clearWeeklyResults(callback) {
-				mongo.removeResults(intermediaryAggregationType, weeklyFrequency, callback);
 			},
 			function clearWeeklyUniqueUsersResults(callback) {
 				mongo.removeResults(aggregationType, weeklyFrequency, callback);
@@ -124,20 +111,9 @@ aggregate.clearPreviousResults = function(callback) {
 
 aggregate.groupLoginsByDateAndUserThenStore = function(callback) {
 	async.series([
-			function groupDailyAndStore(callback) {
-				aggregate.groupLoginsByDateAndUser(
-					dailyFrequency,
-					function(err, results) {
-						if (err) return callback(err);
-						mongo.storeResults(intermediaryAggregationType, 
-														 	 dailyFrequency, 
-														   results, 
-														   callback);
-				});
-			}, function groupDailyByUniqueUser(callback) {
+			function groupDailyByUniqueUser(callback) {
 				aggregate.countByUniqueUserAndDate(
 					dailyFrequency, 
-					intermediaryAggregationType, 
 					function(err, results) {
 						if (err) return callback(err);
 						mongo.storeResults(aggregationType, 
@@ -145,20 +121,9 @@ aggregate.groupLoginsByDateAndUserThenStore = function(callback) {
 															 results, 
 															 callback);
 				});
-			}, function groupWeeklyAndStore(callback) {
-				aggregate.groupLoginsByDateAndUser(
-					weeklyFrequency, 
-					function(err, results) {
-						if (err) return callback(err);
-						mongo.storeResults(intermediaryAggregationType, 
-															 weeklyFrequency, 
-															 results, 
-															 callback);
-				});
 			}, function groupWeeklyByUniqueUser(callback) {
 				aggregate.countByUniqueUserAndDate(
 					weeklyFrequency, 
-					intermediaryAggregationType, 
 					function(err, results) {
 						if (err) return callback(err);
 						mongo.storeResults(aggregationType, 

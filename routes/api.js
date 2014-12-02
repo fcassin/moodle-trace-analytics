@@ -10,6 +10,14 @@ router.get('/', function(req, res) {
 var aggregateLogins = require('../public/javascripts/aggregate_login_events_by_date');
 var aggregateUsers = require('../public/javascripts/aggregate_unique_users_by_date');
 
+router.get('/login/hourly', function(req, res) {
+	aggregateLogins.findHourlyResults(function(err, results) {
+		if (err) res.send('500 Server error');
+
+		res.send(results[0].results);
+	})
+});
+
 router.get('/login/daily', function(req, res) {
 	aggregateLogins.findDailyResults(function(err, results) {
 		if (err) res.send('500 Server error');

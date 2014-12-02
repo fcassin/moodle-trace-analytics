@@ -10,6 +10,17 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Liste des indicateurs Moodle' });
 });
 
+router.get('/login/hourly', function(req, res) {
+  aggregateLogins.findHourlyResults(function(err, results) {
+		if (err) res.send('500 Server error');
+
+		res.render('login/timeline', {
+  		title : 'Connexions réparties par heure',
+  		logs : results[0].results
+  	});
+	})
+});
+
 router.get('/login/daily', function(req, res) {
   aggregateLogins.findDailyResults(function(err, results) {
 		if (err) res.send('500 Server error');
@@ -37,7 +48,7 @@ router.get('/users/daily', function(req, res) {
 		if (err) res.send('500 Server error');
 
 		res.render('login/timeline', {
-  		title : 'Connexions journalières',
+  		title : 'Visiteurs journaliers',
   		logs : results[0].results
   	});
 	})
@@ -48,7 +59,7 @@ router.get('/users/weekly', function(req, res) {
 		if (err) res.send('500 Server error');
 
 		res.render('login/timeline', {
-  		title : 'Connexions hebdomadaires',
+  		title : 'Visiteurs hebdomadaires',
   		logs : results[0].results
   	});
 	})

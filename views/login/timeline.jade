@@ -24,6 +24,17 @@ block content
 
     var options = {
       start: firstDate,
-      end: lastDate
+      end: lastDate,
+      style: 'bar',
+      barChart: { align: 'center' },
+      drawPoints: false,
+      selectable: true,
+      dataAxis: {
+        customRange: {
+          left: {
+            min: 0
+          }
+        }
+      }
     };
     var graph2d = new vis.Graph2d(container, dataset, options);
