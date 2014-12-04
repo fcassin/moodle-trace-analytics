@@ -18,7 +18,9 @@ ktbsMongo.obselSchema = new mongoose.Schema({
 	subject : String,
 	args : Object,
 	results : Object,
+	student : Boolean,
 	attr : { type : Object, default : 'null' },
+	course : { type: Object, default : 'null' },
 	added : { type : schemaTypes.Long, default : function() { 
 		var now = new Date(); return now.getTime() } }
 }, { collection : 'trace' });

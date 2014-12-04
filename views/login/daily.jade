@@ -1,0 +1,29 @@
+extends ../layout
+
+block content
+  h1= title
+
+  #visualization
+
+  script(type='text/javascript').
+    var logs = !{JSON.stringify(logs)};
+
+    var container = document.getElementById('visualization');
+    var items = [];
+    var firstDate = logs[0]._id;
+    var lastDate;
+    logs.forEach(function(log) {
+      lastDate = log._id;
+      var point = {
+        x: log._id,
+        y: log.value
+      };
+      items.push(point);
+    });
+    var dataset = new vis.DataSet(items);
+
+    var options = {
+      start: firstDate,
+      end: lastDate
+    };
+    var graph2d = new vis.Graph2d(container, dataset, options);

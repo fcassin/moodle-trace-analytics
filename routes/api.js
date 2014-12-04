@@ -38,7 +38,7 @@ router.get('/users/daily', function(req, res) {
 	aggregateUsers.findDailyResults(function(err, results) {
 		if (err) res.send('500 Server error');
 
-		res.send(results[0].result);
+		res.send(results[0].results);
 	})
 });
 
