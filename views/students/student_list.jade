@@ -1,0 +1,106 @@
+extends ../layout
+
+block content
+
+  link(rel='stylesheet', href='/stylesheets/student_list.css')
+
+  h1= title
+
+  p "The United States!" said Passepartout; "that's just what I want!"
+
+  p He followed the clown, and soon found himself once more in the Japanese quarter.  A quarter of an hour later he stopped before a large cabin, adorned with several clusters of streamers, the exterior walls of which were designed to represent, in violent colours and without perspective, a company of jugglers.
+
+  p This was the Honourable William Batulcar's establishment.  That gentleman was a sort of Barnum, the director of a troupe of mountebanks, jugglers, clowns, acrobats, equilibrists, and gymnasts, who, according to the placard, was giving his last performances before leaving the Empire of the Sun for the States of the Union.
+
+  div.container-fluid
+    div.col-md-2
+      label(for='from') Du
+      div#fromInput.input-group.date
+        input#from.form-control(type='text')
+        span.input-group-addon
+          i.glyphicon.glyphicon-th
+
+    div.col-md-2
+      label(for='to') au
+      div#toInput.input-group.date
+        input#to.form-control(type='text')
+        span.input-group-addon
+          i.glyphicon.glyphicon-th
+
+  div
+    ul
+    for item in students
+      li 
+        a #{item._id.subject} - #{item.number} enregistrements 
+
+  script(type='text/javascript').
+    var fromDate, toDate;
+    var utcFromDate, utcToDate;
+
+    $('#fromInput.input-group.date').datepicker({
+      format: "dd/mm/yyyy",
+      weekStart: 1,
+      language: "fr",
+      autoclose: true,
+      todayHighlight: true
+    }).on('changeDate', function(data) {
+        fromDate = data.date;
+        utcFromDate = Date.UTC(fromDate.getFullYear(),
+                               fromDate.getMonth(),
+                               fromDate.getDay(),
+                               fromDate.getHours(),
+                               fromDate.getMinutes(),
+                               fromDate.getSeconds(),
+                               fromDate.getMilliseconds());
+        
+        console.log(fromDate);
+        console.log(utcFromDate);
+        console.log(fromDate.toISOString());
+    });
+
+    $('#toInput.input-group.date').datepicker({
+      format: "dd/mm/yyyy",
+      weekStart: 1,
+      language: "fr",
+      autoclose: true,
+      todayHighlight: true
+    }).on('changeDate', function(data) {
+      toDate = data.date;
+      utcToDate = Date.UTC(toDate.getFullYear(),
+                             toDate.getMonth(),
+                             toDate.getDay(),
+                             toDate.getHours(),
+                             toDate.getMinutes(),
+                             toDate.getSeconds(),
+                             toDate.getMilliseconds());
+
+      console.log(toDate);
+    });
+
+  script(type='text/javascript').
+    var elements = d3.selectAll("li");
+    elements.data(!{JSON.stringify(students)});
+    elements.on('click', function(d) {
+      //console.log('click');
+      console.log(this);
+      console.log(d);
+
+      if (d.expanded === undefined || d.expanded === false) {
+        d.expanded = true;
+        var currentLocation = window.location;
+
+        d3.select(this).append("div")
+          .attr('style', 'clear: both');
+
+        d3.select(this).append("iframe")
+          .attr('src', currentLocation + '/' + d._id.subject)
+          .attr('width', 660)
+          .attr('height', 350)
+          .attr('style', 'float: left');
+      } else {
+        d.expanded = false;
+
+        d3.select(this).select("iframe").remove();
+        d3.select(this).select("div").remove();
+      }
+    });

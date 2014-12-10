@@ -87,11 +87,20 @@ ktbsMongo.findResults = function(functionName, args, callback) {
 	var connection = ktbsMongo.createMongoConnection();
 	var obselModel = ktbsMongo.getObselModel(connection);
 
-	obselModel.find({
-		'@type' : 'aggregate',
-		subject : functionName,
-		args : args
-	}, function(err, results) {
+	var filter = {};
+	filter['subject'] = functionName;
+	filter['@type'] = 'aggregate';
+
+	for (var property in args) {
+		if (args.hasOwnProperty(property)) {
+			var filterPropertyName = 'args.' + property;
+			filter[filterPropertyName] = args[property];
+		}
+	}
+
+	console.log(JSON.stringify(filter));
+
+	obselModel.find(filter, function(err, results) {
 		if (err) return callback(err);
 
 		ktbsMongo.disconnectMongo(connection);

@@ -1,0 +1,13 @@
+li {
+	float: left;
+	clear: both;
+	width: 100%;
+}
+
+iframe {
+	border: 0px;
+}
+
+a {
+	cursor: pointer;
+}

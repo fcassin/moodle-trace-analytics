@@ -16,6 +16,10 @@ aggregate.groupByDate = function(frequency, callback) {
 
 	var timeCalculation, connection, obselModel;
 
+	var filter = {
+		"@type" : "user_login"
+	}
+
 	connection = mongo.createMongoConnection();
 	obselModel = mongo.getObselModel(connection);
 
@@ -64,9 +68,7 @@ aggregate.groupByDate = function(frequency, callback) {
 	obselModel.aggregate(
 	  [
 	    {
-	      $match : {
-	        "@type" : "user_login"
-	      }
+	      $match : filter
 	    }, { 
 	      $project :
 	      {

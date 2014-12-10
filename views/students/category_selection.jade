@@ -1,0 +1,17 @@
+extends ../layout
+
+block content
+  h1= title
+
+  form
+    select
+      option 
+      for item in selectValues
+        option(value='#{item._id.id}') #{item._id.name}
+
+  script(type='text/javascript').
+    d3.select("select").on('change', function() {
+      var selectedValue = this.options[this.selectedIndex].value;
+      var currentLoc = window.location;
+      window.location.assign(currentLoc + '/' + selectedValue)
+    })

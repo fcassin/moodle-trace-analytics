@@ -1,0 +1,330 @@
+extends ../layout
+
+block content
+
+  link(rel='stylesheet', href='/stylesheets/student_stacked_activity.css')
+
+  script(type='text/javascript').
+    var logs = !{JSON.stringify(data)};
+
+    var matrix = [];
+    var dateList = [];
+    var moduleList = [];
+
+    var modules = [];
+    var days = [];
+    var daysTotal = [];
+
+    var colors = [];
+    colors.push("#5DA5DA"); // blue
+    colors.push("#FAA43A"); // orange
+    colors.push("#F17CB0"); // pink
+    colors.push("#60BD68"); // green
+    colors.push("#F15854"); // red
+    colors.push("#89E3F1"); // cyan
+    colors.push("#F1EE81"); // lemon
+    colors.push("#C369F1"); // purple
+    colors.push("#B01E02"); // dark red
+    colors.push("#001C7F"); // dark blue
+    colors.push("#2F7F00"); // dark green
+
+    function color(i) {
+      return colors[i];
+    }
+
+    function getModule(name) {
+      var index = -1;
+      for (var i = 0; i < modules.length; i++) {
+        if (modules[i].name === name) {
+          index = i;
+          break;
+        }
+      }
+      
+      if (index === -1) {
+        var module = {
+          name: name,
+          value: 0
+        }
+        modules.push(module);
+        return module;
+      }
+      else return modules[index];
+    }
+
+    function getIndexOrInsert(list, element) {
+      var index = list.indexOf(element);
+      if (index === -1) {
+        index = list.push(element) - 1;
+      }
+      return index;
+    }
+
+    function pushValueToMatrix(matrix, x, y, value) {
+      if (matrix[x] === undefined) {
+        matrix[x] = [];
+      }
+      matrix[x][y] = value;
+    }
+
+    // Sums all the module values
+    logs.forEach(function(element) {
+      var moduleAndActionName = element._id.action;
+      var moduleName = moduleAndActionName.split('_')[0];
+      //console.log(moduleName);
+      var module = getModule(moduleName);
+      module.value = module.value + element.number;
+    });
+    // Sorts the list
+    modules = modules.sort(function(a, b) {
+      return b.value - a.value;
+    });
+
+    logs.forEach(function(element) {
+      var day = element._id.day;
+      var moduleAndActionName = element._id.action;
+      var module = moduleAndActionName.split('_')[0];
+      
+      var dateIndex = getIndexOrInsert(dateList, day);
+      var moduleIndex = getIndexOrInsert(moduleList, module);
+      pushValueToMatrix(matrix, moduleIndex, dateIndex, element.number);
+
+      var previousTotal = daysTotal[dateIndex];
+      if (previousTotal === undefined) previousTotal = 0;
+      previousTotal = previousTotal + element.number;
+      daysTotal[dateIndex] = previousTotal;  
+    });
+
+    for (var i = 0; i < dateList.length; i++) {
+      days.push(new Date(dateList[i]));
+    }
+
+    for (var i = 0; i < moduleList.length; i++) {
+      for (var j = 0; j < dateList.length; j++) {
+        if (matrix[i][j] === undefined) {
+          matrix[i][j] = 0;
+        }
+      }
+    }
+
+    var offset = 0;
+    var displayType;
+
+    var n = moduleList.length, // number of layers
+        m = dateList.length, // number of samples per layer
+        stack = d3.layout.stack(),
+        layers = stack(d3.range(n).map(function(i) {
+          var index = (i + offset) % matrix.length; 
+          return matrix[index].map(function(d, i) {
+            //return { x: i, y: d };
+            return { x: days[i], y: d, module: moduleList[index] }
+          });
+        })),
+        yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
+        yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+
+    var margin = {top: 40, right: 10, bottom: 20, left: 10},
+        width = 640 - margin.left - margin.right,
+        height = 330 - margin.top - margin.bottom;
+
+    var xDomain = [];
+
+    var firstDay = days[0];
+    var lastDay = days[days.length - 1];
+
+    var dayBefore = new Date(firstDay.getFullYear(), 
+                            firstDay.getMonth(), 
+                            firstDay.getDate() - 1);
+
+    var dayAfter = new Date(lastDay.getFullYear(), 
+                           lastDay.getMonth(), 
+                           lastDay.getDate() + 1);
+
+    xDomain.push(dayBefore);
+    xDomain.push(dayAfter);
+
+    var x = d3.time.scale()
+            .domain(xDomain)
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+        .domain([0, yStackMax])
+        .range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom");
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+      .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d, i) { return color(i); });
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d; })
+      .enter().append("rect")
+        .attr("x", function(d) { return x(d.x) - ((width / m) - 3) / 2; })
+        .attr("y", height)
+        //.attr("width", x.rangeBand())
+        .attr("width", (width / m) - 3)
+        .attr("height", 0);
+        
+    rect.append("svg:title")
+        .text(function(d) {
+          return d.module + ' - ' + d.y + ' évènements';
+        });
+
+    rect.transition()
+        .delay(function(d, i) { return i * 10; })
+        .attr("y", function(d) { return y(d.y0 + d.y); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    d3.selectAll("input[name=\"mode\"]").on("change", change);
+    d3.selectAll("input[name=\"down\"]").on("click", rotateMatrixDown);
+    d3.selectAll("input[name=\"up\"]").on("click", rotateMatrixUp);
+
+    function getOffsetIndex(i) {
+      var index = ((i + offset % n) + n) % n;
+      return index
+    }
+
+    function updateAfterRotation() {
+      layers = stack(d3.range(n).map(function(i) {
+          var index = getOffsetIndex(i); 
+          return matrix[index].map(function(d, i) {
+            return { x: days[i], y: d, module: moduleList[index] }
+          });
+        }))
+
+      var layer = svg.selectAll(".layer")
+        .data(layers)
+
+      layer.transition()
+        .duration(750)
+        .style("fill", function(d, i) { return color(getOffsetIndex(i)); });
+
+      var rect = layer.selectAll("rect")
+        .data(function(d) { return d; })
+
+      rect.transition()
+          .duration(500)
+          .delay(function(d, i) { return 250; })
+          .attr("y", function(d, i) {
+            if (displayType === "raw") {
+              return calcYRaw(d, i);
+            } else {
+              return calcYNormalized(d, i);
+            } 
+          })
+          .attr("height", function(d, i) {
+            if (displayType === "raw") {
+              return calcHeightRaw(d, i);
+            } else {
+              return calcHeightNormalized(d, i);
+            } 
+          });
+
+      var titles = rect.selectAll("title");
+      titles.remove();
+
+      rect.append("svg:title")
+        .text(function(d) {
+          return d.module + ' - ' + d.y + ' évènements';
+        });
+    }
+
+    function rotateMatrixUp() {
+      offset = offset - 1;
+      updateAfterRotation();
+    }
+
+    function rotateMatrixDown() {
+      offset = offset + 1;
+      updateAfterRotation();
+    }
+
+    function change() {
+      clearTimeout(timeout);
+      displayType = this.value;
+      if (displayType === "raw") transitionRaw();
+      else transitionNormalized();
+    }
+
+    function transitionStack(setStack, calcY, calcHeight) {
+      var rect = layer.selectAll("rect");
+
+      layers = stack(d3.range(n).map(function(i) { 
+          return setStack(i);
+        }))
+
+      yStackMax = d3.max(layers, function(layer) { 
+        return d3.max(layer, function(d, i) { 
+          return d.y0 + d.y; 
+        }); 
+      });
+
+      y.domain([0, yStackMax]);
+
+      rect.transition()
+          .duration(500)
+          .delay(function(d, i) { return i * 10; })
+          .attr("y", function(d, i) { 
+             return calcY(d, i);
+          })
+          .attr("height", function(d, i) {
+            return calcHeight(d, i);
+          });
+    }
+
+    function setStackRaw(i) {
+      var index = getOffsetIndex(i); 
+      return matrix[index].map(function(d, i) {
+        return { x: days[i], y: d, module: moduleList[index] }
+      });
+    }
+
+    function calcYRaw(d, i) {
+      return y(d.y + d.y0);
+    }
+
+    function calcHeightRaw(d, i) {
+      return height - y(d.y);
+    }
+
+    function transitionRaw() {
+      transitionStack(setStackRaw, calcYRaw, calcHeightRaw);
+    }
+
+    function setStackNormalized(i) {
+      var index = getOffsetIndex(i); 
+        return matrix[index].map(function(d, i) {
+          var tot = daysTotal[i];
+          return { x: days[i], y: d / tot, module: moduleList[index] }
+        });
+    }
+
+    function calcYNormalized(d, i) {
+      var tot = daysTotal[i]; 
+      return y(d.y / tot + d.y0 / tot);
+    }
+
+    function calcHeightNormalized(d, i) {
+      var tot = daysTotal[i]; 
+      return height - y(d.y / tot);
+    }
+
+    function transitionNormalized() {
+      transitionStack(setStackNormalized, calcYNormalized, calcHeightNormalized);
+    }

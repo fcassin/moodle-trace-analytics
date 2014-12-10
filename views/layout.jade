@@ -2,9 +2,16 @@ doctype html
 html
   head
     title= title
+    link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/date_picker/datepicker3.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/vis.css')
 
     script(src='/javascripts/vis.js')
+    script(src="/javascripts/d3.v3.min.js")
+    script(src="/javascripts/jquery-2.1.1.min.js")
+    script(src="/javascripts/bootstrap.min.js")
+    script(src="/javascripts/date_picker/bootstrap-datepicker.js")
+    script(src="/javascripts/date_picker/bootstrap-datepicker.fr.js")
   body
       block content
