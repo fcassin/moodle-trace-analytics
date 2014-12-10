@@ -64,8 +64,33 @@ block content
       if (matrix[x] === undefined) {
         matrix[x] = [];
       }
-      matrix[x][y] = value;
+      var oldValue = matrix[x][y];
+      if (oldValue === undefined) {
+        oldValue = 0; 
+      }
+      matrix[x][y] = oldValue + value;
     }
+
+    //console.log(!{fromDate});
+    //console.log(!{toDate});
+    if (!{fromDate} !== undefined && !{toDate} !== undefined) {
+      var paramFromDate = new Date(!{fromDate});
+      var paramToDate = new Date(!{toDate})
+      
+      console.log(paramFromDate);
+      console.log(paramToDate);
+
+      var pointerDate = paramFromDate;
+
+      console.log(pointerDate.getTime());
+      console.log(paramToDate.getTime());
+
+      while (pointerDate.getTime() < paramToDate.getTime()) {
+        getIndexOrInsert(dateList, pointerDate);
+        pointerDate = new Date(pointerDate.getFullYear(), pointerDate.getMonth(), pointerDate.getDate() + 1);
+      }
+    }
+
 
     // Sums all the module values
     logs.forEach(function(element) {
@@ -96,7 +121,9 @@ block content
     });
 
     for (var i = 0; i < dateList.length; i++) {
-      days.push(new Date(dateList[i]));
+    var date = new Date(dateList[i]);
+    var midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      days.push(midnight);
     }
 
     for (var i = 0; i < moduleList.length; i++) {
@@ -123,7 +150,7 @@ block content
         yGroupMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y; }); }),
         yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 
-    var margin = {top: 40, right: 10, bottom: 20, left: 10},
+    var margin = {top: 40, right: 50, bottom: 20, left: 10},
         width = 640 - margin.left - margin.right,
         height = 330 - margin.top - margin.bottom;
 
@@ -155,6 +182,10 @@ block content
         .scale(x)
         .orient("bottom");
 
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("right");
+
     var svg = d3.select("body").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
@@ -170,10 +201,11 @@ block content
     var rect = layer.selectAll("rect")
         .data(function(d) { return d; })
       .enter().append("rect")
-        .attr("x", function(d) { return x(d.x) - ((width / m) - 3) / 2; })
+        .attr("x", function(d) { return x(d.x) - (width / m) / 2; })
+        //.attr("x", function(d) { return x(d.x) })
         .attr("y", height)
         //.attr("width", x.rangeBand())
-        .attr("width", (width / m) - 3)
+        .attr("width", width / m)
         .attr("height", 0);
         
     rect.append("svg:title")
@@ -190,6 +222,11 @@ block content
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
+
+    svg.append("g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(" + width + ", 0)")
+        .call(yAxis);
 
     d3.selectAll("input[name=\"mode\"]").on("change", change);
     d3.selectAll("input[name=\"down\"]").on("click", rotateMatrixDown);

@@ -10,20 +10,24 @@ block content
 
   p Les controles permettant de filtrer les évènements sur la date ne sont pas encore fonctionnels, mais le seront très prochainement. Vous pouvez cliquer sur n'importe quel étudiant pour accéder à un aperçu de son parcours. Il est possible de sélectionner plusieurs étudians afin de pouvoir comparer rapidement leurs parcours.
 
-  div.container-fluid
-    div.col-md-2
-      label(for='from') Du
-      div#fromInput.input-group.date
+  form.form-horizontal
+    div.form-group
+      label.col-sm-1.control-label(for='from') Du
+      div#fromInput.input-group.date.col-sm-2
         input#from.form-control(type='text')
         span.input-group-addon
           i.glyphicon.glyphicon-th
 
-    div.col-md-2
-      label(for='to') au
-      div#toInput.input-group.date
+    div.form-group
+      label.col-sm-1.control-label(for='to') au
+      div#toInput.input-group.date.col-sm-2
         input#to.form-control(type='text')
         span.input-group-addon
           i.glyphicon.glyphicon-th
+
+    div.form-group
+      div.col-sm-offset-1
+        button#filter.btn.btn-default Filtrer
 
   div
     ul
@@ -32,8 +36,22 @@ block content
         a #{item._id.subject} - #{item.number} enregistrements 
 
   script(type='text/javascript').
+    function getCurrentPath() {
+      var currentLocation = window.location;
+      console.log(currentLocation);
+      return currentLocation.origin + currentLocation.pathname;
+    }
+
+  script(type='text/javascript').
     var fromDate, toDate;
     var utcFromDate, utcToDate;
+
+    $('#filter').on('click', function(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      
+      window.location.replace(getCurrentPath() + '?fromDate=' + utcFromDate + '&toDate=' + utcToDate);
+    })
 
     $('#fromInput.input-group.date').datepicker({
       format: "dd/mm/yyyy",
@@ -45,7 +63,7 @@ block content
         fromDate = data.date;
         utcFromDate = Date.UTC(fromDate.getFullYear(),
                                fromDate.getMonth(),
-                               fromDate.getDay(),
+                               fromDate.getDate(),
                                fromDate.getHours(),
                                fromDate.getMinutes(),
                                fromDate.getSeconds(),
@@ -53,8 +71,12 @@ block content
         
         console.log(fromDate);
         console.log(utcFromDate);
-        console.log(fromDate.toISOString());
     });
+
+    console.log(typeof(fromDate))
+
+    var paramFromDate = new Date(#{fromDate});
+    $('#fromInput.input-group.date').datepicker('setDate', paramFromDate);
 
     $('#toInput.input-group.date').datepicker({
       format: "dd/mm/yyyy",
@@ -66,14 +88,18 @@ block content
       toDate = data.date;
       utcToDate = Date.UTC(toDate.getFullYear(),
                              toDate.getMonth(),
-                             toDate.getDay(),
+                             toDate.getDate(),
                              toDate.getHours(),
                              toDate.getMinutes(),
                              toDate.getSeconds(),
                              toDate.getMilliseconds());
 
       console.log(toDate);
+      console.log(utcToDate);
     });
+
+    var paramToDate = new Date(#{toDate});
+    $('#toInput.input-group.date').datepicker('setDate', paramToDate);
 
   script(type='text/javascript').
     var elements = d3.selectAll("li");
@@ -85,13 +111,12 @@ block content
 
       if (d.expanded === undefined || d.expanded === false) {
         d.expanded = true;
-        var currentLocation = window.location;
 
         d3.select(this).append("div")
           .attr('style', 'clear: both');
 
         d3.select(this).append("iframe")
-          .attr('src', currentLocation + '/' + d._id.subject)
+          .attr('src', getCurrentPath() + '/' + d._id.subject + '?fromDate=' + !{fromDate} + '&toDate=' + !{toDate})
           .attr('width', 660)
           .attr('height', 350)
           .attr('style', 'float: left');

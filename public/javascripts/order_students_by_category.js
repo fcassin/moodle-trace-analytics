@@ -12,7 +12,9 @@ aggregate.orderStudentsByCategory = function(args, callback) {
 
 	var filter = {};
 	filter.student = true;
-	filter['course.category1.moodleId'] = args.category; 
+	filter['course.category1.moodleId'] = args.category;
+	filter['begin'] = { $gt : args.fromDate };
+	filter['end'] = { $lt : args.toDate };
 
 	connection = mongo.createMongoConnection();
 	obselModel = mongo.getObselModel(connection);
@@ -37,9 +39,20 @@ aggregate.orderStudentsByCategory = function(args, callback) {
 	});
 }
 
-aggregate.findOrComputeStudentsByCategory = function(category, callback) {
+aggregate.findOrComputeStudentsByCategory = function(category, fromDate, toDate, callback) {
 	var args = { };
+	var now = new Date();
+
+	if (fromDate === undefined || fromDate === null) {
+		fromDate = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+	}
+	if (toDate === undefined || toDate === null) {
+		toDate = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+	}
+
 	args.category = category;
+	args.fromDate = fromDate;
+	args.toDate = toDate;
 	mongo.findResults(aggregationType, args, function(err, results) {
 		if (err) callback(err);
 
@@ -54,12 +67,12 @@ aggregate.findOrComputeStudentsByCategory = function(category, callback) {
 						function(err) {
 							if (err) return callback(err);
 
-							aggregate.findOrComputeStudentsByCategory(category, callback);
+							aggregate.findOrComputeStudentsByCategory(category, fromDate, toDate, callback);
 						});
 				}
 			)	
 		} else {
-			console.log('results found');
+			// Results found
 			callback(null, results);
 		}
 	});	

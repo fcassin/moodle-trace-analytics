@@ -17,10 +17,8 @@ aggregate.countByUserModuleAndDate = function(args, callback) {
 	filter.student = true;
 	filter.subject = args.subject;
 	filter['course.category1.moodleId'] = args.category;
-
-	var now = new Date();
-	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	var thirtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+	filter['begin'] = { $gt : args.fromDate };
+	filter['end'] = { $lt : args.toDate };
 
 	connection = mongo.createMongoConnection();
 	obselModel = mongo.getObselModel(connection);
@@ -75,10 +73,22 @@ aggregate.countByUserModuleAndDate = function(args, callback) {
 	mongo.findResults(aggregationType, args, callback);
 }*/
 
-aggregate.findOrComputeUserLogs = function(subject, category, callback) {
+aggregate.findOrComputeUserLogs = function(subject, category, fromDate, toDate, callback) {
 	var args = {};
+	var now = new Date();
+
+	if (fromDate === undefined || fromDate === null) {
+		fromDate = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+	}
+	if (toDate === undefined || toDate === null) {
+		toDate = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+	}
+
 	args.subject = subject;
 	args.category = category;
+	args.fromDate = fromDate;
+	args.toDate = toDate;
+
 	mongo.findResults(aggregationType, args, function(err, results) {
 		if (err) callback(err);
 
@@ -93,7 +103,7 @@ aggregate.findOrComputeUserLogs = function(subject, category, callback) {
 						function(err) {
 							if (err) return callback(err);
 
-							aggregate.findOrComputeUserLogs(subject, category, callback);
+							aggregate.findOrComputeUserLogs(subject, category, fromDate, toDate, callback);
 						});
 				}
 			)	

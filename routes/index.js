@@ -211,21 +211,47 @@ router.get('/students/category', function(req, res) {
 
 		res.render('students/category_selection', {
   		title : 'Sélection d\'une catégorie',
-  		selectValues : results[0].results
+  		selectValues : results[0].results,
   	});
   });
 });
 
 router.get('/students/category/:categoryId', function(req, res) {
 	var categoryId = Number(req.param("categoryId"));
-	orderStudentsByCategory.findOrComputeStudentsByCategory(categoryId, function(err, results) {
-		if (err) res.send('500 Server error');
 
-		res.render('students/student_list', {
-  		title : 'Liste des étudiants',
-  		category : categoryId,
-  		students : results[0].results
-  	});
+	var fromDate, toDate;
+
+	var fromDateParam = req.param("fromDate");
+	var toDateParam = req.param("toDate");
+
+	if (toDateParam !== undefined) {
+		toDate = Number(toDateParam);
+	} else {
+		toDate = new Date().getTime();
+	}
+
+	if (fromDateParam !== undefined) {
+		fromDate = Number(fromDateParam);
+	} else {
+		var today = new Date();
+		fromDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 60).getTime();
+	}
+
+	orderStudentsByCategory.findOrComputeStudentsByCategory(
+		categoryId, 
+		fromDate,
+		toDate,
+		function(err, results) {
+			if (err) res.send('500 Server error');
+
+			res.render('students/student_list', {
+	  		title : 'Liste des étudiants',
+	  		category : categoryId,
+	  		students : results[0].results,
+	  		fromDate : fromDate,
+	  		toDate : toDate
+	  	}
+	  );
   });
 });
 
@@ -233,15 +259,31 @@ router.get('/students/category/:categoryId/:student', function(req, res) {
 	var student = req.param("student");
 	var categoryId = Number(req.param("categoryId"));
 
+	var fromDate, toDate;
+
+	var fromDateParam = req.param("fromDate");
+	var toDateParam = req.param("toDate");
+
+	if (fromDateParam !== undefined) {
+		fromDate = Number(fromDateParam);
+	}
+	if (toDateParam !== undefined) {
+		toDate = Number(toDateParam);
+	}
+
 	aggregateUserLogsByModuleAndDate.findOrComputeUserLogs(
 		student,
 		categoryId,
+		fromDate,
+		toDate,
 		function(err, results) {
 			if (err) res.send('500 Server error');
 
 			res.render('students/stacked_activity', {
   			title : 'Activité',
   			data : results[0].results,
+  			fromDate : fromDate,
+  			toDate : toDate
   		});
   	}
   );

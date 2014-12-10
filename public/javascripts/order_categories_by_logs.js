@@ -146,7 +146,7 @@ aggregate.findOrComputeSecondLevelResults = function(idFirstLevel, callback) {
 				}
 			)	
 		} else {
-			console.log('results found');
+			//Results found
 			callback(null, results);
 		}
 	});	
@@ -174,7 +174,7 @@ aggregate.findOrComputeThirdLevelResults = function(idSecondLevel, callback) {
 				}
 			)	
 		} else {
-			console.log('results found');
+			//Results found
 			callback(null, results);
 		}
 	});	
@@ -202,7 +202,7 @@ aggregate.findOrComputeFourthLevelResults = function(idThirdLevel, callback) {
 				}
 			)	
 		} else {
-			console.log('results found');
+			//Results found
 			callback(null, results);
 		}
 	});	
