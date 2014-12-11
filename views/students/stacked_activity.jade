@@ -15,21 +15,25 @@ block content
     var days = [];
     var daysTotal = [];
 
-    var colors = [];
-    colors.push("#5DA5DA"); // blue
-    colors.push("#FAA43A"); // orange
-    colors.push("#F17CB0"); // pink
-    colors.push("#60BD68"); // green
-    colors.push("#F15854"); // red
-    colors.push("#89E3F1"); // cyan
-    colors.push("#F1EE81"); // lemon
-    colors.push("#C369F1"); // purple
-    colors.push("#B01E02"); // dark red
-    colors.push("#001C7F"); // dark blue
-    colors.push("#2F7F00"); // dark green
+    var colorMap = {}
+    colorMap['course'] = "#5DA5DA"; // blue
+    colorMap['folder'] = "#FAA43A"; // orange
+    colorMap['forum'] = "#F17CB0"; // pink
+    colorMap['resource'] = "#60BD68"; // green
+    colorMap['url'] = "#F15854"; // red
+    colorMap['page'] = "#89E3F1"; // cyan
+    colorMap['quiz'] = "#F1EE81"; // lemon
+    colorMap['user'] = "#C369F1"; // purple 
+    colorMap['discussion'] = "#B01E02"; // dark red
+    colorMap['questionnaire'] = "#001C7F"; // dark blue
+    colorMap['default'] = "#2F7F00"; // dark green
 
-    function color(i) {
-      return colors[i];
+    function color(module) {  
+      var color = colorMap[module];
+      if (color === undefined) {
+        color = colorMap['default']; 
+      }
+      return color;
     }
 
     function getModule(name) {
@@ -196,7 +200,9 @@ block content
         .data(layers)
       .enter().append("g")
         .attr("class", "layer")
-        .style("fill", function(d, i) { return color(i); });
+        .style("fill", function(d, i) { 
+          return color(d[0].module); 
+        });
 
     var rect = layer.selectAll("rect")
         .data(function(d) { return d; })
@@ -250,7 +256,10 @@ block content
 
       layer.transition()
         .duration(750)
-        .style("fill", function(d, i) { return color(getOffsetIndex(i)); });
+        .style("fill", function(d, i) { 
+          console.log(d);
+          return color(d[0].module); 
+        });
 
       var rect = layer.selectAll("rect")
         .data(function(d) { return d; })
